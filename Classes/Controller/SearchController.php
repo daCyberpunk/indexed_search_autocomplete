@@ -15,44 +15,60 @@
 
 namespace ID\indexedSearchAutocomplete\Controller;
 
+
 /**
  * EntryController
  */
-class SearchController extends \TYPO3\CMS\Extbase\Mvc\Controller\ActionController {
+class SearchController extends \TYPO3\CMS\IndexedSearch\Controller\SearchController {
+
 
     /**
-     * Search repository
-     *
-     * @var \TYPO3\CMS\IndexedSearch\Domain\Repository\IndexSearchRepository
+     * @param \TYPO3\CMS\Core\TypoScript\TypoScriptService $typoScriptService
      */
-    protected $searchRepository = null;
-    
-     /**
-      * Search functions
-      * 
-      * @var ID\IndexedSearchAutocomplete\Service\SearchService
-      * @inject
-      */
-    protected $searchService = null;
+    public function injectTypoScriptService(\TYPO3\CMS\Core\TypoScript\TypoScriptService $typoScriptService)
+    {
+        $this->typoScriptService = $typoScriptService;
+    }
 
     /**
      * action search
      *
+     * @param array $search
+     *
      * @return string
      */
-    public function SearchAction() {
+    public function searchAction($search = []) {
+
+        if (!$this->settings) {
+            $setting = $this->configurationManager->getConfiguration(
+                \TYPO3\CMS\Extbase\Configuration\ConfigurationManagerInterface::CONFIGURATION_TYPE_FULL_TYPOSCRIPT
+            );
+            $settings = $setting['plugin.']['tx_indexedsearch.']['settings.'];
+            $this->settings = $this->typoScriptService->convertTypoScriptArrayToPlainArray($settings);
+        }
+
         $arg = $_REQUEST;
-        $searchmode = $arg['m'];
 
-        $result = [];
-        if ($searchmode == 'word') {
-            $result = $this->searchService->searchAWord($arg, $arg['mr']);
-        } else {
-            $result = $this->searchService->searchASite($arg, $arg['mr']);
-        }
+        $search = [
+            '_sections '=> '0',
+            '_freeIndexUid' => '_',
+            'pointer' => '0',
+            'ext' => '',
+            'searchType' => '1',
+            'defaultOperand' => '0',
+            'mediaType' => -'1',
+            'sortOrder' => 'rank_flag',
+            'group' => '',
+            'languageUid' => -'1',
+            'desc' => '',
+            'numberOfResults' => $arg['mr'],
+            'extendedSearch' => '',
+            'sword' => $arg['s'],
+            'submitButton' => 'Suchen',
+        ];
+        parent::searchAction($search);
 
-        foreach ($result as $key => $value) {
-            $this->view->assign($key, $value);
-        }
+        $this->view->assign('mode', $arg['m']);
     }
+
 }

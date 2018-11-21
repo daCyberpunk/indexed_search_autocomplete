@@ -5,10 +5,14 @@
 -->
 <f:spaceless>
     <li>
-        Titel: {results.title}<br />
+        Titel: {results.title -> f:format.raw()}<br />
         Beschreibung: {results.description}<br />
         Page-ID: {results.page_id}<br />
-        Link: <f:link.typolink parameter="{results.page_id}" class="navigate-on-enter" title="Link zur Seite {results.title}">Link zur Seite: {results.title}</f:link.typolink>
+<f:comment>
+    Item Title: {results.item_title}<br />
+    Link: <f:link.typolink parameter="{results.page_id}" class="navigate-on-enter" title="Link zur Seite {results.title}">Link zur Seite: {results.title}</f:link.typolink>
+    LinkAction: {results.title}
+</f:comment>
     </li>
 </f:spaceless>
 </html>
